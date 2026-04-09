@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Jaga BPS Talaud</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #FF6B00;
+            --primary-navy: #003366;
+            --light-navy: #e6f0fa;
+            --dark: #2d3436;
+            --bg-light: #f4f7f9;
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { background-color: var(--bg-light); margin: 0; padding: 10px; color: var(--dark); }
+
+        .container {
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 8px solid var(--primary-orange);
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        h2 { 
+            text-align: center; color: var(--primary-navy); font-size: 1.2rem;
+            margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid var(--primary-orange);
+            padding-bottom: 10px; letter-spacing: 1px;
+        }
+
+        h3 { 
+            font-size: 0.9rem; color: var(--primary-navy); margin-top: 25px; 
+            text-transform: uppercase; border-left: 5px solid var(--primary-orange); 
+            padding-left: 10px; font-weight: 700;
+        }
+
+        select, input, textarea {
+            width: 100%; padding: 8px; border: 1px solid #ced4da;
+            border-radius: 4px; font-size: 13px; background-color: #fff;
+        }
+
+        table { 
+            width: 100%; border-collapse: collapse; margin: 10px 0; 
+            font-size: 12px; min-width: 600px; border: 2px solid var(--primary-navy);
+        }
+        th { 
+            background: var(--primary-navy); color: white; padding: 12px 10px; 
+            border: 1px solid #004080; font-weight: 600; text-transform: uppercase;
+        }
+        td { 
+            padding: 10px; border: 1px solid #dee2e6; text-align: center; 
+        }
+        tbody tr:nth-child(even) {
+            background-color: var(--light-navy);
+        }
+
+        .time-flex { display: flex; align-items: center; gap: 5px; justify-content: center; }
+        .time-flex input { width: 80px; padding: 4px; font-size: 12px; }
+
+        .narasi {
+            font-size: 14px; line-height: 1.8; background: #fffcf9;
+            padding: 15px; border-radius: 6px; border: 1px solid #ffe8d6;
+            margin: 15px 0; color: #333; text-align: justify;
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        button { 
+            padding: 12px 15px; border: none; border-radius: 6px; 
+            font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-add { background: var(--primary-navy); color: white; flex: 2; }
+        .btn-add:hover { background: #002347; }
+        .btn-save { background: var(--primary-orange); color: white; flex: 1; }
+        .btn-save:hover { background: #e66000; }
+        .btn-reset { background: #d63031; color: white; flex: 1; }
+        .btn-reset:hover { background: #a52424; }
+        .btn-print { background: #333; color: white; width: 100%; margin-top: 25px; padding: 14px; font-weight: bold; }
+        
+        .sig-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 25px; 
+            margin-top: 15px; 
+        }
+        .sig-box {
+            text-align: center; border: 1px solid #e1e8ed; padding: 15px;
+            border-radius: 8px; background: #fafafa;
+        }
+
+        .stamp-area { height: 110px; display: flex; align-items: center; justify-content: center; margin: 8px 0; border: 1px dashed #bcccdc; border-radius: 4px; background: white; }
+        .stamp-area img { max-height: 100px; max-width: 100%; object-fit: contain; }
+
+        .print-text { display: none; font-weight: 600; }
+        .inline-print-normal { display: inline; font-weight: 400; text-transform: none; }
+        .no-underline { text-decoration: none !important; border-bottom: none !important; }
+
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            .container { box-shadow: none; padding: 0; width: 100%; border: none; margin: 0; max-width: 100%; }
+            .no-print, button, input[type="file"], select, .time-flex input, textarea { display: none !important; }
+            .print-text { display: block !important; margin-top: 5px; }
+            #txtTanggalPrint, .inline-print-normal { display: inline !important; font-weight: 400 !important; }
+            table { border: 2px solid #000; min-width: 100%; }
+            th { background: #f0f0f0 !important; color: #000 !important; border: 1px solid #000; }
+            td { border: 1px solid #000; }
+            tbody tr:nth-child(even) { background-color: transparent !important; }
+            .sig-box { border: none; background: transparent; }
+            .stamp-area { border: none; height: auto; min-height: 85px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Laporan Serah Terima Jaga</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="30">No</th>
+                        <th>Nama Petugas (Jaga Lama)</th>
+                        <th width="80">Jabatan</th>
+                        <th width="90">Shift</th>
+                        <th width="180">Waktu Tugas</th>
+                        <th width="90">Ket.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <select id="selectJagaLamaAtas" class="no-print" onchange="syncJagaLama(this)">
+                                <option value="">-- Pilih Nama --</option>
+                                <option>Napolion Malensang</option>
+                                <option>Andris Firdaus Maasawet</option>
+                                <option>Malkus Mangaleda Lampah</option>
+                            </select>
+                            <div id="txtNamaLamaAtas" class="print-text"></div>
+                        </td>
+                        <td>Satpam</td>
+                        <td>
+                            <select id="selectShift" class="no-print" onchange="syncPrint(this, 'txtShiftAtas')">
+                                <option>Pagi</option>
+                                <option>Malam</option>
+                            </select>
+                            <div id="txtShiftAtas" class="print-text">Pagi</div>
+                        </td>
+                        <td>
+                            <div class="time-flex no-print">
+                                <input type="time" id="jamMulai" oninput="updateWaktuTugas()">
+                                <span>s/d</span>
+                                <input type="time" id="jamSelesai" oninput="updateWaktuTugas()">
+                            </div>
+                            <div id="txtWaktuAtas" class="print-text" style="font-weight:400;">-</div>
+                        </td>
+                        <td>
+                            <input type="text" id="inputKetUmum" value="Aman" class="no-print" oninput="syncPrint(this, 'txtKetAtas')">
+                            <div id="txtKetAtas" class="print-text" style="font-weight:400;">Aman</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="narasi">
+            Pada hari ini, 
+            <input type="date" id="tgl_lengkap" class="no-print" style="width:auto;" onchange="formatTanggalLengkap(this)">
+            <span id="txtTanggalPrint" class="print-text inline-print-normal"></span>, 
+            saya <span id="narasiNamaBaru" class="inline-print-normal no-underline" style="font-weight: 600;">. . . . . . . . . . . .</span>, 
+            selaku petugas keamanan (jaga baru) di Kantor BPS Kabupaten Kepulauan Talaud, 
+            telah menerima serah terima tugas dan tanggung jawab jaga selama 12 (dua belas) jam dari petugas jaga sebelumnya, 
+            <span id="narasiNamaLama" class="inline-print-normal no-underline" style="font-weight: 600;">. . . . . . . . . . . .</span>, 
+            dalam keadaan aman dan kondusif.
+        </div>
+
+        <h3>Daftar Barang Inventaris</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="30">No</th>
+                        <th width="120">Nama Barang</th>
+                        <th width="60">Jumlah</th>
+                        <th width="80">Kondisi</th>
+                        <th width="60">Ket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Kunci Mobil</td><td>1</td><td>Baik</td><td>Ada</td></tr>
+                    <tr><td>2</td><td>Pentungan</td><td>1</td><td>Baik</td><td>Ada</td></tr>
+                    <tr><td>3</td><td>Senter</td><td>1</td><td>Baik</td><td>Ada</td></tr>
+                    <tr><td>4</td><td>Meja/Kursi</td><td>1</td><td>Baik</td><td>Ada</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Laporan Uraian Kegiatan</h3>
+        <div class="table-wrapper">
+            <table id="kegiatanTable">
+                <thead>
+                    <tr><th width="40">No</th><th width="100">Waktu (Jam)</th><th>Uraian Kegiatan</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="btn-group no-print">
+            <button type="button" class="btn-add" onclick="addRow()">+ Tambah Baris Kegiatan</button>
+            <button type="button" class="btn-reset" onclick="resetLaporan()">Reset / Laporan Baru</button>
+            <button type="button" class="btn-save" onclick="saveDataManual()">Simpan Draft Laporan</button>
+        </div>
+
+        <div class="sig-container">
+            <div class="sig-box">
+                <span style="font-size: 11px; font-weight: bold; color: var(--primary-navy);">YANG BERTUGAS (JAGA LAMA)</span>
+                <input type="file" class="no-print" accept="image/*" onchange="previewImg(this, 'imgLama')" style="font-size: 10px; margin-top:5px;">
+                <div class="stamp-area" id="imgLama"></div>
+                <select id="selectJagaLamaBawah" class="no-print" onchange="syncJagaLama(this)">
+                    <option value="">-- Pilih Nama --</option>
+                    <option>Napolion Malensang</option>
+                    <option>Andris Firdaus Maasawet</option>
+                    <option>Malkus Mangaleda Lampah</option>
+                </select>
+                <div id="txtNamaLamaSig" class="print-text no-underline"></div>
+            </div>
+
+            <div class="sig-box">
+                <span style="font-size: 11px; font-weight: bold; color: var(--primary-navy);">YANG MENERIMA (JAGA BARU)</span>
+                <input type="file" class="no-print" accept="image/*" onchange="previewImg(this, 'imgBaru')" style="font-size: 10px; margin-top:5px;">
+                <div class="stamp-area" id="imgBaru"></div>
+                <select id="selectJagaBaruBawah" class="no-print" onchange="syncJagaBaru(this)">
+                    <option value="">-- Pilih Nama --</option>
+                    <option>Napolion Malensang</option>
+                    <option>Andris Firdaus Maasawet</option>
+                    <option>Malkus Mangaleda Lampah</option>
+                </select>
+                <div id="txtNamaBaruSig" class="print-text no-underline"></div>
+            </div>
+        </div>
+
+        <button type="button" class="btn-print no-print" onclick="window.print()">Cetak Laporan (A4 PDF)</button>
+    </div>
+
+<script>
+    let count = 0;
+    const STORAGE_KEY = 'laporanJagaDraft_Talaud';
+
+    function addRow(dataTime = '', dataDesc = '') {
+        count++;
+        const tbody = document.querySelector("#kegiatanTable tbody");
+        const row = tbody.insertRow();
+        const idT = `t_${count}`;
+        const idD = `d_${count}`;
+        row.innerHTML = `
+            <td>${count}</td>
+            <td>
+                <input type="time" class="no-print" value="${dataTime}" oninput="syncPrint(this, '${idT}'); autoSave()">
+                <div id="${idT}" class="print-text" style="font-weight:400;">${dataTime}</div>
+            </td>
+            <td>
+                <textarea rows="2" class="no-print" oninput="syncPrint(this, '${idD}'); autoSave()">${dataDesc}</textarea>
+                <div id="${idD}" class="print-text" style="text-align:left; font-weight:400; white-space: pre-wrap;">${dataDesc}</div>
+            </td>`;
+    }
+
+    function formatTanggalLengkap(el) {
+        if(!el.value) return;
+        const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const tanggalFormatted = new Date(el.value).toLocaleDateString('id-ID', opsi);
+        document.getElementById('txtTanggalPrint').innerText = tanggalFormatted;
+        autoSave();
+    }
+
+    function syncJagaLama(el) {
+        const val = el.value;
+        document.getElementById('selectJagaLamaAtas').value = val;
+        document.getElementById('selectJagaLamaBawah').value = val;
+        document.getElementById('txtNamaLamaAtas').innerText = val;
+        document.getElementById('txtNamaLamaSig').innerText = val;
+        document.getElementById('narasiNamaLama').innerText = val || ". . . . . . . . . . . .";
+        autoSave();
+    }
+
+    function syncJagaBaru(el) {
+        const val = el.value;
+        document.getElementById('selectJagaBaruBawah').value = val;
+        document.getElementById('txtNamaBaruSig').innerText = val;
+        document.getElementById('narasiNamaBaru').innerText = val || ". . . . . . . . . . . .";
+        autoSave();
+    }
+
+    function syncPrint(el, targetId) {
+        document.getElementById(targetId).innerText = el.value;
+    }
+
+    function updateWaktuTugas() {
+        const mulai = document.getElementById('jamMulai').value;
+        const selesai = document.getElementById('jamSelesai').value;
+        const display = (mulai && selesai) ? `${mulai} s/d ${selesai}` : "-";
+        document.getElementById('txtWaktuAtas').innerText = display;
+        autoSave();
+    }
+
+    function previewImg(input, target) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById(target).innerHTML = `<img src="${e.target.result}">`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveData() {
+        const kegiatan = [];
+        document.querySelectorAll("#kegiatanTable tbody tr").forEach(tr => {
+            const timeIn = tr.querySelector('input[type="time"]');
+            const descIn = tr.querySelector('textarea');
+            if(timeIn && descIn) {
+                kegiatan.push({ time: timeIn.value, desc: descIn.value });
+            }
+        });
+
+        const data = {
+            namaLama: document.getElementById('selectJagaLamaAtas').value,
+            namaBaru: document.getElementById('selectJagaBaruBawah').value,
+            shift: document.getElementById('selectShift').value,
+            jamMulai: document.getElementById('jamMulai').value,
+            jamSelesai: document.getElementById('jamSelesai').value,
+            ket: document.getElementById('inputKetUmum').value,
+            tanggal: document.getElementById('tgl_lengkap').value,
+            kegiatan: kegiatan
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function autoSave() { saveData(); }
+
+    function saveDataManual() {
+        saveData();
+        alert("Draft Laporan Berhasil Disimpan!");
+    }
+
+    function resetLaporan() {
+        if(confirm("Apakah Anda yakin ingin menghapus laporan ini dan membuat yang baru? (Seluruh uraian kegiatan akan hilang)")) {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload(); // Refresh halaman untuk membersihkan semua input
+        }
+    }
+
+    function loadSavedData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            if(data.namaLama) syncJagaLama({value: data.namaLama});
+            if(data.namaBaru) syncJagaBaru({value: data.namaBaru});
+            document.getElementById('selectShift').value = data.shift || "Pagi";
+            syncPrint(document.getElementById('selectShift'), 'txtShiftAtas');
+            document.getElementById('jamMulai').value = data.jamMulai || "";
+            document.getElementById('jamSelesai').value = data.jamSelesai || "";
+            updateWaktuTugas();
+            document.getElementById('inputKetUmum').value = data.ket || "Aman";
+            syncPrint(document.getElementById('inputKetUmum'), 'txtKetAtas');
+            if(data.tanggal) {
+                document.getElementById('tgl_lengkap').value = data.tanggal;
+                formatTanggalLengkap(document.getElementById('tgl_lengkap'));
+            }
+            const tbody = document.querySelector("#kegiatanTable tbody");
+            tbody.innerHTML = "";
+            count = 0;
+            if(data.kegiatan && data.kegiatan.length > 0) {
+                data.kegiatan.forEach(k => addRow(k.time, k.desc));
+            } else { addRow(); }
+        } else { addRow(); }
+    }
+
+    window.onload = () => {
+        const tglInput = document.getElementById('tgl_lengkap');
+        if(!tglInput.value) tglInput.value = new Date().toISOString().split('T')[0];
+        loadSavedData();
+        formatTanggalLengkap(tglInput);
+    };
+</script>
+
+</body>
+</html>
